@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cardview_dark_background"
+    android:orientation="vertical">
+
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="380dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        tools:context="com.example.elessar1992.eventfinder.MapsActivity"
+        android:layout_below="@+id/place_autocomplete_fragment"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <fragment
+        android:id="@+id/place_autocomplete_fragment"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="49dp"
+        android:layout_marginStart="49dp" />
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@+id/map">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/Description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" >
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/textInputEditTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description"
+            android:textColorHint="@color/colorText"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="@color/colorText" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/find"
+            android:layout_below="@+id/textInputEditTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorBackground"
+            android:background="@color/colorPrimaryDark"
+            android:text="Find" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/search"
+            android:layout_below="@+id/find"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorBackground"
+            android:background="@color/colorPrimaryDark"
+            android:text="Search" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+</RelativeLayout>
