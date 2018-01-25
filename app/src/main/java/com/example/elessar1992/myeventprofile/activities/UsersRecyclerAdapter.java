@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.elessar1992.myeventprofile.R;
-import com.example.elessar1992.myeventprofile.model.User;
+import com.example.elessar1992.myeventprofile.model.User.User;
 
 import java.util.List;
 

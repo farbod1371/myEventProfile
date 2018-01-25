@@ -1,4 +1,4 @@
-package com.example.elessar1992.myeventprofile.model;
+package com.example.elessar1992.myeventprofile.model.User;
 
 /**
  * Created by elessar1992 on 1/22/18.

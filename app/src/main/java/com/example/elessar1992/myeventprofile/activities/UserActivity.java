@@ -14,7 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.elessar1992.myeventprofile.R;
-import com.example.elessar1992.myeventprofile.model.User;
+import com.example.elessar1992.myeventprofile.model.User.User;
 import com.example.elessar1992.myeventprofile.sql.DataBaseHelper;
 
 import java.util.ArrayList;

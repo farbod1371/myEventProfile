@@ -9,9 +9,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.ListAdapter;
 
-import com.example.elessar1992.myeventprofile.model.User;
+import com.example.elessar1992.myeventprofile.model.User.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +21,7 @@ import java.util.List;
 
 public class DataBaseHelper extends SQLiteOpenHelper
 {
+    // First Table
     public static final String DATABASE_NAME = "match.db";
     public static final String TABLE_NAME = "match";
     public static final String COL_id = "ID";
@@ -31,9 +31,12 @@ public class DataBaseHelper extends SQLiteOpenHelper
     public static final String COL_email = "Email";
     public static final String COL_password = "Password";
 
+
     private String CREATE_USER_TABLE2 = "CREATE TABLE " + TABLE_NAME + "("
             + COL_id + " INTEGER PRIMARY KEY AUTOINCREMENT," + COL_firstName + " TEXT," + COL_lastName + " TEXT," + COL_userName + " TEXT,"
             + COL_email + " TEXT," + COL_password + " TEXT" + ")";
+
+
 
 
 

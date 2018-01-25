@@ -5,13 +5,19 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.elessar1992.myeventprofile.R;
+import com.example.elessar1992.myeventprofile.Services.FourSquareService;
+import com.example.elessar1992.myeventprofile.model.FoursquareData.Explore;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -38,12 +44,23 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 /**
  * Created by elessar1992 on 1/22/18.
  */
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener
 {
+    private AppCompatButton findButton;
+    private AppCompatButton searchButton;
+    private TextInputEditText textInputEditTextDescription;
+    private TextInputLayout textInputLayoutDescription;
+
+
+
     private GoogleMap mMap;
     Marker mMarker;
 
@@ -59,12 +76,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
 
+    String Client_ID = "GQYXXRBQP2UYHST3FL1IRFEQNLRBPXPQXORWT5JWWGU32XMW";
+    String Client_Secret = "YPIX13O3ZY5HZ1QJZFU0EW0SP3XIIEN3JK5LNE4FC11OSUAH";
+    String apiVersion = "20130815";
+    List<LatLng> list = new ArrayList<>();
+    List<String> nameList = new ArrayList<>();
+    String ll;
+    String query;
+    String radius = "10000";
+    MarkerOptions markerOptions = new MarkerOptions();
+    String name;
+    double lat;
+    double lng;
+    ArrayList<Marker> markersToClear = new ArrayList<Marker>();
+
+    List<String> descriptionList = new ArrayList<>();
+    List<String> photoUrls = new ArrayList<>();
+    List<Double> ratingList = new ArrayList<>();
+    List<String> priceList = new ArrayList<>();
+    String description;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         getSupportActionBar().hide();
+
+        textInputLayoutDescription = (TextInputLayout) findViewById(R.id.Description);
+        textInputEditTextDescription = (TextInputEditText) findViewById(R.id.textInputEditTextEmail);
+        findButton = (AppCompatButton) findViewById(R.id.find);
+        searchButton = (AppCompatButton) findViewById(R.id.search);
+
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(this, null);
         // Construct a PlaceDetectionClient.
@@ -92,10 +135,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(placelatlng));
 
 
-                //String lat = Double.toString(placelatlng.latitude);
-                //String lng = Double.toString(placelatlng.longitude);
+                String lat = Double.toString(placelatlng.latitude);
+                String lng = Double.toString(placelatlng.longitude);
 
-                //ll = lat + ',' +lng;
+                ll = lat + ',' +lng;
 
                 //build_retrofit_and_get_response("4d4b7104d754a06370d81259");
 
@@ -112,6 +155,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        findButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String value = textInputEditTextDescription.getText().toString().trim();
+                clearList();
+                // do something when the corky is clicked
+                build_retrofit_and_get_response(value);
+            }
+        });
+
+
+
 
     }
 
@@ -144,6 +202,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.isTiltGesturesEnabled();
         uiSettings.setRotateGesturesEnabled(true);
+
+        mMap.setOnInfoWindowClickListener(
+                new GoogleMap.OnInfoWindowClickListener()
+                {
+                    public void onInfoWindowClick(Marker marker)
+                    {
+                        for(int i = 0; i < list.size(); i++){
+                            if(list.get(i) == marker.getTag())
+                            {
+                                Intent activity = new Intent(MapsActivity.this, InfoActivity.class);
+                                activity.putExtra("Name", nameList.get(i));
+                                activity.putExtra("Price", priceList.get(i));
+                                activity.putExtra("Latlng", list.get(i));
+                                startActivity(activity);
+                            }
+                        }
+                    }
+                });
 
     }
 
@@ -241,7 +317,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String lat = Double.toString(mLastKnownLocation.getLatitude());
                             String lng = Double.toString(mLastKnownLocation.getLongitude());
 
-                            //ll = lat + ',' +lng;
+                            ll = lat + ',' +lng;
                         }
                         else
                         {
@@ -260,6 +336,64 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    private void build_retrofit_and_get_response(String query)
+    {
+        FourSquareService fourSquareService = FourSquareService.retrofit.create(FourSquareService.class);
+        Call<Explore> call = fourSquareService.requestExplore(Client_ID, Client_Secret, apiVersion, ll, query, radius);
+        call.enqueue(new Callback<Explore>() {
+            @Override
+            public void onResponse(Call<Explore> call, Response<Explore> response)
+            {
+                try
+                {
+                    Log.i(TAG, "onResponse:"+ response.body().getResponse().getGroups().get(0).getItems().size());
+                    for (int i = 0; i < response.body().getResponse().getGroups().get(0).getItems().size(); i++)
+                    {
+                        lat = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getLocation().getLat();
+                        lng = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getLocation().getLng();
+                        name = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getName();
+                        LatLng latLng = new LatLng(lat, lng);
+                        list.add(latLng);
+                        nameList.add(name);
+                    }
+                    for(int i = 0; i < list.size(); i ++)
+                    {
+                        markerOptions.position(list.get(i));
+                        markerOptions.title(nameList.get(i));
+                        Marker marker;
+                        marker = mMap.addMarker(markerOptions);
+                        marker.setTag(markerOptions.getPosition());
+                        markersToClear.add(marker);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.d("onResponse", "There is an error " + e.getMessage() );
+                    e.printStackTrace();
+                }
+            }
+
+
+
+
+            @Override
+            public void onFailure(Call<Explore> call, Throwable t) {
+                Log.d("onFailure", t.toString());
+            }
+        });
+    }
+
+    public void clearList()
+    {
+        list.clear();
+        nameList.clear();
+        for (Marker marker : markersToClear)
+        {
+            marker.remove();
+        }
+        markersToClear.clear();
     }
 
     @Override

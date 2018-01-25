@@ -17,7 +17,7 @@ import android.view.View;
 
 import com.example.elessar1992.myeventprofile.R;
 import com.example.elessar1992.myeventprofile.helper.InputValidation;
-import com.example.elessar1992.myeventprofile.model.User;
+import com.example.elessar1992.myeventprofile.model.User.User;
 import com.example.elessar1992.myeventprofile.sql.DataBaseHelper;
 
 /**
