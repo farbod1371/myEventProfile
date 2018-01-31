@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.elessar1992.myeventprofile.model.Events.Event;
 import com.example.elessar1992.myeventprofile.model.User.User;
 
 import java.util.ArrayList;
@@ -31,10 +32,37 @@ public class DataBaseHelper extends SQLiteOpenHelper
     public static final String COL_email = "Email";
     public static final String COL_password = "Password";
 
+    // Second Table
+    public static final String TABLE_NAME2 = "description";
+    public static final String COL_DID = "ID"; // primary key
+    public static final String COL_UserID = "ID"; // foreigen key
+    //public static final String COL_dUsername = "DUsername";
+    public static final String COL_Time = "Time";
+    public static final String COL_description = "Description";
+
+    // Third Table
+
+    public static final String TABLE_NAME3 = "favorite";
+    public static final String COL_EventId = "ID"; // primary key
+    public static final String COL_UserID2 = "ID"; // foreigen key
+    public static final String COL_EventName = "EventName";
+    public static final String COL_Eventlag = "EventLag";
+
+
+
 
     private String CREATE_USER_TABLE2 = "CREATE TABLE " + TABLE_NAME + "("
             + COL_id + " INTEGER PRIMARY KEY AUTOINCREMENT," + COL_firstName + " TEXT," + COL_lastName + " TEXT," + COL_userName + " TEXT,"
             + COL_email + " TEXT," + COL_password + " TEXT" + ")";
+
+    private String CREATE_Saved_TABLE = "CREATE TABLE "
+            + TABLE_NAME2 + " ("
+            + COL_DID + " integer primary key autoincrement, "
+            + COL_description + " TEXT, "
+            + COL_Time + " TEXT, "
+            + " FOREIGN KEY ("+COL_UserID+") REFERENCES "+TABLE_NAME+"("+COL_id+"))";
+
+
 
 
 
@@ -51,12 +79,14 @@ public class DataBaseHelper extends SQLiteOpenHelper
     {
         //db.execSQL("CREATE TABLE " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT,FirstName TEXT,LastName TEXT,UserName TEXT,Email TEXT,Password TEXT");
         db.execSQL(CREATE_USER_TABLE2);
+        db.execSQL(CREATE_Saved_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_NAME2);
         onCreate(db);
     }
 
@@ -74,11 +104,31 @@ public class DataBaseHelper extends SQLiteOpenHelper
         db.close();
     }
 
+    public void addEvent(Event event)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_DID, event.getEvent_Id());
+        values.put(COL_UserID, event.getUser_id());
+        values.put(COL_description, event.getDescription());
+        values.put(COL_Time, event.getTime());
+
+        db.insert(TABLE_NAME2, null, values);
+        db.close();
+    }
+
 
     public Cursor getallData()
     {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("select * from "+TABLE_NAME,null);
+        return res;
+    }
+
+    public Cursor getallEvent()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("select * from "+TABLE_NAME2,null);
         return res;
     }
 
@@ -112,7 +162,8 @@ public class DataBaseHelper extends SQLiteOpenHelper
         if (cursor.moveToFirst())
 
         {
-            do {
+            do
+            {
                 User user = new User();
                 user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COL_id))));
                 user.setUsername(cursor.getString(cursor.getColumnIndex(COL_userName)));
