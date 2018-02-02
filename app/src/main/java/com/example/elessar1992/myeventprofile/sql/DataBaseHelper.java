@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.elessar1992.myeventprofile.model.Events.Event;
 import com.example.elessar1992.myeventprofile.model.User.User;
+import com.example.elessar1992.myeventprofile.model.favorites.Favorite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,12 @@ public class DataBaseHelper extends SQLiteOpenHelper
 
 
 
-
+    private String CREATE_Favorite_TABLE = "CREATE TABLE "
+            + TABLE_NAME3 + " ("
+            + COL_EventId + " integer primary key autoincrement, "
+            + COL_EventName + " TEXT, "
+            + COL_Eventlag + " TEXT, "
+            + " FOREIGN KEY ("+COL_UserID2+") REFERENCES "+TABLE_NAME+"("+COL_id+"))";
 
 
 
@@ -80,6 +86,7 @@ public class DataBaseHelper extends SQLiteOpenHelper
         //db.execSQL("CREATE TABLE " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT,FirstName TEXT,LastName TEXT,UserName TEXT,Email TEXT,Password TEXT");
         db.execSQL(CREATE_USER_TABLE2);
         db.execSQL(CREATE_Saved_TABLE);
+        db.execSQL(CREATE_Favorite_TABLE);
     }
 
     @Override
@@ -87,6 +94,7 @@ public class DataBaseHelper extends SQLiteOpenHelper
     {
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_NAME2);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_NAME3);
         onCreate(db);
     }
 
@@ -116,6 +124,22 @@ public class DataBaseHelper extends SQLiteOpenHelper
         db.insert(TABLE_NAME2, null, values);
         db.close();
     }
+
+    public void addfavorite(Favorite favorite)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_EventId, favorite.getFavorite_id());
+        values.put(COL_EventName, favorite.getEvent_name());
+        values.put(COL_UserID2, favorite.getUser_id2());
+        values.put(COL_Eventlag, favorite.getLatitude());
+
+        db.insert(TABLE_NAME3, null, values);
+        db.close();
+    }
+
+
+
 
 
     public Cursor getallData()

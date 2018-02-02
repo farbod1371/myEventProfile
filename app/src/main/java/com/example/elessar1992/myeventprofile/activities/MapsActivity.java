@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.elessar1992.myeventprofile.R;
 import com.example.elessar1992.myeventprofile.Services.FourSquareService;
 import com.example.elessar1992.myeventprofile.model.FoursquareData.Explore;
+import com.example.elessar1992.myeventprofile.model.FoursquareData.Price;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -88,12 +89,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String name;
     double lat;
     double lng;
+    double rating;
+    String photourl;
+    String suffix;
+    String prefix;
+    Price price;
     ArrayList<Marker> markersToClear = new ArrayList<Marker>();
 
     List<String> descriptionList = new ArrayList<>();
     List<String> photoUrls = new ArrayList<>();
     List<Double> ratingList = new ArrayList<>();
-    List<String> priceList = new ArrayList<>();
+    List<String> suffixList = new ArrayList<>();
+    List<String> prefixList = new ArrayList<>();
+    List<String> ratingAsStringList = new ArrayList<>();
+    List<String> photourlList = new ArrayList<>();
+    List<String> latlngAsStringList = new ArrayList<>();
+    List<Price> priceList = new ArrayList<>();
     String description;
 
     @Override
@@ -163,8 +174,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             {
                 String value = textInputEditTextDescription.getText().toString().trim();
                 clearList();
-                // do something when the corky is clicked
-                build_retrofit_and_get_response(value);
+                if(value.isEmpty())
+                {
+                    textInputEditTextDescription.setError("its empty");
+                }
+                else
+                {
+                    // do something when the corky is clicked
+                    build_retrofit_and_get_response(value);
+                }
             }
         });
 
@@ -211,10 +229,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         for(int i = 0; i < list.size(); i++){
                             if(list.get(i) == marker.getTag())
                             {
-                                Intent activity = new Intent(MapsActivity.this, InfoActivity.class);
+                                Intent activity = new Intent(MapsActivity.this, EventActivity.class);
                                 activity.putExtra("Name", nameList.get(i));
-                                activity.putExtra("Price", priceList.get(i));
-                                activity.putExtra("Latlng", list.get(i));
+                                activity.putExtra("Rating", ratingAsStringList.get(i));
+                                activity.putExtra("latlng", latlngAsStringList.get(i));
+                                //activity.putExtra("photourl", photourlList.get(i));
+                                //activity.putExtra("suffix", suffixList.get(i));
+                                //activity.putExtra("prefix", prefixList.get(i));
                                 startActivity(activity);
                             }
                         }
@@ -351,17 +372,45 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.i(TAG, "onResponse:"+ response.body().getResponse().getGroups().get(0).getItems().size());
                     for (int i = 0; i < response.body().getResponse().getGroups().get(0).getItems().size(); i++)
                     {
+                        //price = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getPrice();
+                        if(response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getRating() != null)
+                        {
+                            rating = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getRating();
+                            String ratingAsString = String.valueOf(rating);
+                            ratingAsStringList.add(ratingAsString);
+                        }
+                        //String ratingAsString = String.valueOf(rating);
                         lat = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getLocation().getLat();
                         lng = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getLocation().getLng();
                         name = response.body().getResponse().getGroups().get(0).getItems().get(i).getVenue().getName();
+                        //photourl = response.body().getResponse().getGroups().get(0).getItems().get(i).getTips().get(0).getPhotourl();
+                        //suffix = response.body().getResponse().getGroups().get(0).getItems().get(i).getTips().get(0).getPhoto().getSuffix();
+                        //prefix = response.body().getResponse().getGroups().get(0).getItems().get(i).getTips().get(0).getPhoto().getPrefix();
                         LatLng latLng = new LatLng(lat, lng);
+                        String latlngAsString = String.valueOf(latLng);
                         list.add(latLng);
                         nameList.add(name);
+                        //ratingList.add(rating);
+                        //ratingAsStringList.add(ratingAsString);
+                        latlngAsStringList.add(latlngAsString);
+                        //photourlList.add(photourl);
+                        //suffixList.add(suffix);
+                        //prefixList.add(prefix);
+                        //priceList.add(price);
                     }
                     for(int i = 0; i < list.size(); i ++)
                     {
                         markerOptions.position(list.get(i));
                         markerOptions.title(nameList.get(i));
+                        if(ratingAsStringList.get(i) == null)
+                        {
+                            markerOptions.snippet("Is not rated yet");
+                        }
+                        else
+                        {
+                            markerOptions.snippet("Rating is " + ratingAsStringList.get(i));
+                        }
+
                         Marker marker;
                         marker = mMap.addMarker(markerOptions);
                         marker.setTag(markerOptions.getPosition());
@@ -389,6 +438,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         list.clear();
         nameList.clear();
+        ratingAsStringList.clear();
+        ratingList.clear();
+        latlngAsStringList.clear();
+        //photourlList.clear();
+        //prefixList.clear();
+        //suffixList.clear();
+        //priceList.clear();
         for (Marker marker : markersToClear)
         {
             marker.remove();
